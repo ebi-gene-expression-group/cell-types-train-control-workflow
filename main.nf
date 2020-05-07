@@ -7,11 +7,12 @@ BARCODE_COLUMN = Channel.create()
 CELL_LABEL_COLUMN = Channel.create()
 
 Channel
-    .fromPath(params.training_dataset_ids)
+    .fromPath(params.data_import.training_dataset_ids)
     .splitCsv(header:false, sep:",")
     .separate(DATASET_IDS, NUM_CLUST, BARCODE_COLUMN, CELL_LABEL_COLUMN)
 
 process fetch_training_datasets {
+    publishDir "${baseDir}/data/${dataset_id}", mode: 'copy'
     conda "${baseDir}/envs/load_data.yaml"
 
     input:
@@ -19,7 +20,7 @@ process fetch_training_datasets {
         val(num_clust) from NUM_CLUST
 
     output:
-        set file("${dataset_id}"), val("${num_clust}") into TRAINING_DATASET
+        set file("data"), val("${dataset_id}") into TRAINING_DATASET
 
     """
     get_experiment_data.R\
@@ -27,7 +28,7 @@ process fetch_training_datasets {
                 --config-file ${params.data_import.config_file}\
                 --expr-data-type ${params.data_import.expr_data_type}\
                 --normalisation-method ${params.data_import.norm_method}\
-                --output-dir-name ${dataset_id}\
+                --output-dir-name data\
                 --get-sdrf ${params.data_import.get_sdrf}\
                 --get-condensed-sdrf ${params.data_import.get_cond_sdrf}\
                 --get-idf ${params.data_import.get_idf}\
@@ -37,12 +38,14 @@ process fetch_training_datasets {
 }
 
 COMBINED_TRAINING_DATA = TRAINING_DATASET.merge(BARCODE_COLUMN, CELL_LABEL_COLUMN)
-//COMBINED_TRAINING_DATA.view()
-
-
 
 // duplicate queue channel contents into corresponding tool channels 
-
+COMBINED_TRAINING_DATA.into{
+    GARNETT_TRAINING_DATA
+    SCMAP_CELL_TRAINING_DATA
+    SCMAP_CLUSTER_TRAINING_DATA
+    SCPRED_TRAINING_DATA
+}
 
 
 //////////////////////////////////////////
@@ -53,7 +56,7 @@ COMBINED_TRAINING_DATA = TRAINING_DATASET.merge(BARCODE_COLUMN, CELL_LABEL_COLUM
 // run garnett training 
 if(params.garnett.run == "True"){
     process train_garnett_classifier {
-        publishDir "${}", mode: 'copy' //TODO: specify piblishDir 
+        publishDir "${baseDir}/data/${dataset_id}", mode: 'copy'
         conda "${baseDir}/envs/nextflow.yaml"
 
         errorStrategy { task.exitStatus == 130 || task.exitStatus == 137  ? 'retry' : 'finish' }   
@@ -61,9 +64,8 @@ if(params.garnett.run == "True"){
         memory { 16.GB * task.attempt }
         
         input:
-            file(training_data) from GARNETT_TRAINING_DATA
-            val(training_id) from GARNETT_TRAINING_IDS
-        
+            set file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col) from GARNETT_TRAINING_DATA
+            
         output:
             file("garnett_classifier.rds") into GARNETT_CLASSIFIER
 
@@ -74,10 +76,11 @@ if(params.garnett.run == "True"){
                             -profile cluster\
                             --results_dir \$RESULTS_DIR\
                             --ref_10x_dir ${reference_10X_dir}\
+                            --train-id ${dataset_id}\
                             --marker_genes ${ref_markers}\
                             --marker_gene_id_type ${params.garnett.marker_gene_id_type}\
                             --classifier_gene_type ${params.garnett.classifier_gene_type}\
-                            --n_outgroups ${params.garnett.n_outgroups}\
+                            --n_outgroups ${params.garnett.n_outgroups}
         """
     }
 }else{
@@ -86,7 +89,6 @@ if(params.garnett.run == "True"){
 
 
 // run scpred training 
-// run scpred 
 if(params.scpred.run == "True"){
     process run_scpred_workflow {
         publishDir "${params.tool_outputs_dir}", mode: 'copy'
@@ -97,12 +99,10 @@ if(params.scpred.run == "True"){
         memory { 16.GB * task.attempt }
 
         input:
-
-
-
-        output:
+            set file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col) from SCPRED_TRAINING_DATA
 
         """
+
         """
     }
 }else{
