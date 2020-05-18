@@ -4,4 +4,4 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - nextflow
+  - nextflow=19.10.0 

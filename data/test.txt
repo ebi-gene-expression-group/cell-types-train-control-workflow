@@ -1,2 +1,2 @@
-E-MTAB-6386,11,BARCODE,CELL_TYPE
-E-MTAB-6386,11,BARCODE1,CELL_TYPE1
+E-MTAB-6386,normalised,tpm,11,id,Characteristic.cell.type.
+E-MTAB-6487,normalised,cpm,10,id,Characteristic.cell.type.

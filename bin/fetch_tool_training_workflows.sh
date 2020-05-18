@@ -12,3 +12,4 @@ git checkout origin/develop > /dev/null
 git pull origin develop > /dev/null
 git submodule update --recursive --remote > /dev/null
 popd > /dev/null
+
