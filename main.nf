@@ -63,9 +63,10 @@ if(params.unmelt_sdrf.run == "True"){
                 --retain-types ${params.unmelt_sdrf.retain_types}        
         """
     } 
+    COMBINED_TRAINING_DATA = TRAINING_DATA_PROCESSED.merge(BARCODE_COLUMN, CELL_LABEL_COLUMN)
+} else {
+    COMBINED_TRAINING_DATA = TRAINING_DATA.merge(BARCODE_COLUMN, CELL_LABEL_COLUMN)
 }
-
-COMBINED_TRAINING_DATA = TRAINING_DATA_PROCESSED.merge(BARCODE_COLUMN, CELL_LABEL_COLUMN)
 
 
 // fork queue channel contents into channels for corresponding tools
