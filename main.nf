@@ -3,37 +3,46 @@
 // initialise required channels 
 DATASET_IDS = Channel.create()
 NUM_CLUST = Channel.create()
-DATA_TYPE = Channel.create()
-NORM_METHOD = Channel.create()
 BARCODE_COLUMN = Channel.create()
 CELL_LABEL_COLUMN = Channel.create()
 
-// parse txt file with dataset accessions into a queue channel 
-Channel
-    .fromPath(params.data_import.training_dataset_ids)
-    .splitCsv(header:false, sep:",")
-    .separate(DATASET_IDS, DATA_TYPE, NORM_METHOD, NUM_CLUST, BARCODE_COLUMN, CELL_LABEL_COLUMN)
+// extract matrix types required by the tools, conditioned on them being 'on' 
+tool_switch = ["True":0, "False":1]
+garnett_matrix_type = [params.garnett.matrix_type, null][tool_switch[params.garnett.run]]
+scmap_cluster_matrix_type = [params.scmap_cluster.matrix_type, null][tool_switch[params.scmap_cluster.run]]
+scmap_cell_matrix_type = [params.scmap_cell.matrix_type, null][tool_switch[params.scmap_cell.run]]
+scpred_matrix_type = [params.scpred.matrix_type, null][tool_switch[params.scpred.run]]
+
+UNIQUE_MATRIX_TYPES = Channel
+                    .of(garnett_matrix_type,
+                        scmap_cluster_matrix_type,
+                        scmap_cell_matrix_type,
+                        scpred_matrix_type)
+                    .filter{ it != null }
+                    .unique()
+
+// parse txt file with dataset accessions into a queue channel; build combinations with matrix types 
+IMPORT_PARAMS = Channel
+                .fromPath(params.data_import.training_dataset_ids)
+                .splitCsv(header:false, sep:",")
+                .combine(UNIQUE_MATRIX_TYPES)
 
 process fetch_training_datasets {
     publishDir "${baseDir}/data/${dataset_id}", mode: 'copy'
     conda "${baseDir}/envs/load_data.yaml"
 
     input:
-        val(dataset_id) from DATASET_IDS
-        val(num_clust) from NUM_CLUST
-        val(data_type) from DATA_TYPE
-        val(norm_method) from NORM_METHOD
+        tuple val(dataset_id), val(num_clust), val(barcode_col), val(cell_type_col), val(matrix_type) from IMPORT_PARAMS
 
     output:
-        set file("data"), val("${dataset_id}") into TRAINING_DATA
+        tuple file("data"), val(dataset_id), val(barcode_col), val(cell_type_col), val(matrix_type) into TRAINING_DATA
         val(num_clust) into N_CLUST
 
     """
     get_experiment_data.R\
                 --accesssion-code ${dataset_id}\
                 --config-file ${params.data_import.config_file}\
-                --expr-data-type ${data_type}\
-                --normalisation-method ${norm_method}\
+                --matrix-type ${matrix_type}\
                 --output-dir-name data\
                 --get-sdrf ${params.data_import.get_sdrf}\
                 --get-condensed-sdrf ${params.data_import.get_cond_sdrf}\
@@ -50,10 +59,10 @@ if(params.unmelt_sdrf.run == "True"){
         conda "${baseDir}/envs/exp_metadata.yaml"
 
         input:
-            set file(data), val(dataset_id) from TRAINING_DATA
+            tuple file(data), val(dataset_id), val(barcode_col), val(cell_type_col), val(matrix_type) from TRAINING_DATA
 
         output:
-            set file("data"), val("${dataset_id}") into TRAINING_DATA_PROCESSED
+            tuple file("data"), val(dataset_id), val(barcode_col), val(cell_type_col), val(matrix_type) into TRAINING_DATA_UNMELT
 
         """
         unmelt_condensed.R\
@@ -63,14 +72,14 @@ if(params.unmelt_sdrf.run == "True"){
                 --retain-types ${params.unmelt_sdrf.retain_types}        
         """
     } 
-    COMBINED_TRAINING_DATA = TRAINING_DATA_PROCESSED.merge(BARCODE_COLUMN, CELL_LABEL_COLUMN)
+    TRAINING_DATA_UNMELT.into{ TRAINING_DATA_PROCESSED }
 } else {
-    COMBINED_TRAINING_DATA = TRAINING_DATA.merge(BARCODE_COLUMN, CELL_LABEL_COLUMN)
+    TRAINING_DATA.into{ TRAINING_DATA_PROCESSED }
 }
 
 
 // fork queue channel contents into channels for corresponding tools
-COMBINED_TRAINING_DATA.into{
+TRAINING_DATA_PROCESSED.into{
     GARNETT_TRAINING_DATA
     SCMAP_CELL_TRAINING_DATA
     SCMAP_CLUSTER_TRAINING_DATA
@@ -84,6 +93,8 @@ GARNETT_FULL_DATA = GARNETT_TRAINING_DATA.merge(N_CLUST)
 // train each classifier on provided data 
 //////////////////////////////////////////
 
+// keep only relevant version of the dataset 
+GARNETT_FILTERED_DATA = GARNETT_FULL_DATA.filter{ it[4] == params.garnett.matrix_type }
 // run garnett training 
 if(params.garnett.run == "True"){
     process train_garnett_classifier {
@@ -95,7 +106,7 @@ if(params.garnett.run == "True"){
         memory { 16.GB * task.attempt }
         
         input:
-            set file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col), val(num_clust) from GARNETT_FULL_DATA
+            tuple file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col), val(num_clust) from GARNETT_FILTERED_DATA
             
         output:
             file("garnett_classifier.rds") into GARNETT_CLASSIFIER
@@ -123,7 +134,9 @@ if(params.garnett.run == "True"){
 }
 
 
-// run scpred training 
+// keep only relevant version of the dataset 
+SCPRED_FILTERED_DATA = SCPRED_TRAINING_DATA.filter{ it[4] == params.scpred.matrix_type }
+// run scpred training
 if(params.scpred.run == "True"){
     process run_scpred_workflow {
         publishDir "${baseDir}/data/${dataset_id}", mode: 'copy'
@@ -134,7 +147,7 @@ if(params.scpred.run == "True"){
         memory { 16.GB * task.attempt }
 
         input:
-            set file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col) from SCPRED_TRAINING_DATA
+            tuple file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col) from SCPRED_FILTERED_DATA
 
         output:
             file("${params.scpred.trained_model}") into SCPRED_CLASSIFIER
@@ -165,6 +178,8 @@ if(params.scpred.run == "True"){
 }
 
 
+// keep only relevant version of the dataset 
+SCMAP_CLUSTER_FILTERED_DATA = SCMAP_CLUSTER_TRAINING_DATA.filter{ it[4] == params.scmap_cluster.matrix_type }
 // run scmap-cluster training
 if(params.scmap_cluster.run == "True"){
     process run_scmap_cluster_workflow {
@@ -176,12 +191,10 @@ if(params.scmap_cluster.run == "True"){
         memory { 16.GB * task.attempt }
 
         input:
-            set file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col) from SCMAP_CLUSTER_TRAINING_DATA
-
+            tuple file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col) from SCMAP_CLUSTER_FILTERED_DATA
 
         output:
             file("scmap_index_cluster.rds")
-
 
         """
         RESULTS_DIR=\$PWD
@@ -203,7 +216,8 @@ if(params.scmap_cluster.run == "True"){
     SCMAP_CLUSTER_CLASSIFIER = Channel.empty()
 }
 
-
+// keep only relevant version of the dataset 
+SCMAP_CELL_FILTERED_DATA = SCMAP_CELL_TRAINING_DATA.filter{ it[4] == params.scmap_cell.matrix_type }
 // run scmap-cell training
 if(params.scmap_cell.run == "True"){
     process run_scmap_cell_workflow {
@@ -215,7 +229,7 @@ if(params.scmap_cell.run == "True"){
         memory { 16.GB * task.attempt }
 
         input:
-            set file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col) from SCMAP_CELL_TRAINING_DATA
+            tuple file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col) from SCMAP_CELL_FILTERED_DATA
 
 
         output:

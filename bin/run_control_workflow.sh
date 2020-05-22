@@ -2,4 +2,4 @@
 
 export WORKFLOW_ROOT=`pwd`
 
-nextflow run main.nf -profile cluster
+nextflow run main.nf -profile standard
