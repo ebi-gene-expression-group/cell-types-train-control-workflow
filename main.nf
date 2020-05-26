@@ -28,7 +28,6 @@ IMPORT_PARAMS = Channel
                 .combine(UNIQUE_MATRIX_TYPES)
 
 process fetch_training_datasets {
-    publishDir "${baseDir}/data/${dataset_id}", mode: 'copy'
     conda "${baseDir}/envs/load_data.yaml"
 
     input:
@@ -55,7 +54,6 @@ process fetch_training_datasets {
 // to avoid problems with sdrf-barcode matching, unmelt condensed SDRF and use it in downstream processes
 if(params.unmelt_sdrf.run == "True"){
     process unmelt_condensed_sdrf {
-        publishDir "${baseDir}/data/${dataset_id}", mode: 'copy'
         conda "${baseDir}/envs/exp_metadata.yaml"
 
         input:
