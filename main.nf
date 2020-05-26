@@ -72,9 +72,9 @@ if(params.unmelt_sdrf.run == "True"){
                 --retain-types ${params.unmelt_sdrf.retain_types}        
         """
     } 
-    TRAINING_DATA_UNMELT.into{ TRAINING_DATA_PROCESSED }
+    TRAINING_DATA_UNMELT.set{ TRAINING_DATA_PROCESSED }
 } else {
-    TRAINING_DATA.into{ TRAINING_DATA_PROCESSED }
+    TRAINING_DATA.set{ TRAINING_DATA_PROCESSED }
 }
 
 
@@ -87,14 +87,15 @@ TRAINING_DATA_PROCESSED.into{
 }
 
 // add number of clusters to Garnett data 
-GARNETT_FULL_DATA = GARNETT_TRAINING_DATA.merge(N_CLUST)
+GARNETT_FULL_DATA = N_CLUST.merge(GARNETT_TRAINING_DATA)
 
 //////////////////////////////////////////
 // train each classifier on provided data 
 //////////////////////////////////////////
 
 // keep only relevant version of the dataset 
-GARNETT_FILTERED_DATA = GARNETT_FULL_DATA.filter{ it[4] == params.garnett.matrix_type }
+GARNETT_FILTERED_DATA = GARNETT_FULL_DATA.filter{ it[5] == params.garnett.matrix_type }
+
 // run garnett training 
 if(params.garnett.run == "True"){
     process train_garnett_classifier {
@@ -106,7 +107,7 @@ if(params.garnett.run == "True"){
         memory { 16.GB * task.attempt }
         
         input:
-            tuple file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col), val(num_clust) from GARNETT_FILTERED_DATA
+            tuple val(num_clust), file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col), val(matrix_type) from GARNETT_FILTERED_DATA
             
         output:
             file("garnett_classifier.rds") into GARNETT_CLASSIFIER
@@ -147,7 +148,7 @@ if(params.scpred.run == "True"){
         memory { 16.GB * task.attempt }
 
         input:
-            tuple file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col) from SCPRED_FILTERED_DATA
+            tuple file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col), val(matrix_type) from SCPRED_FILTERED_DATA
 
         output:
             file("${params.scpred.trained_model}") into SCPRED_CLASSIFIER
@@ -191,7 +192,7 @@ if(params.scmap_cluster.run == "True"){
         memory { 16.GB * task.attempt }
 
         input:
-            tuple file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col) from SCMAP_CLUSTER_FILTERED_DATA
+            tuple file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col), val(matrix_type) from SCMAP_CLUSTER_FILTERED_DATA
 
         output:
             file("scmap_index_cluster.rds")
@@ -229,7 +230,7 @@ if(params.scmap_cell.run == "True"){
         memory { 16.GB * task.attempt }
 
         input:
-            tuple file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col) from SCMAP_CELL_FILTERED_DATA
+            tuple file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col), val(matrix_type) from SCMAP_CELL_FILTERED_DATA
 
 
         output:

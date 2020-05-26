@@ -5,4 +5,4 @@ channels:
   - defaults
   - ebi-gene-expression-group
 dependencies:
-  - atlas-data-import=0.0.4
+  - atlas-data-import=0.0.5
