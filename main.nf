@@ -31,17 +31,23 @@ process fetch_training_datasets {
     conda "${baseDir}/envs/load_data.yaml"
 
     input:
-        tuple val(dataset_id), val(num_clust), val(barcode_col), val(cell_type_col), val(matrix_type) from IMPORT_PARAMS
+        tuple val(dataset_id), val(seq_method), val(num_clust), val(barcode_col), val(cell_type_col), val(matrix_type) from IMPORT_PARAMS
 
     output:
         tuple file("data"), val(dataset_id), val(barcode_col), val(cell_type_col), val(matrix_type) into TRAINING_DATA
         val(num_clust) into N_CLUST
 
     """
+    if [ ${seq_method} ==  "droplet" ]; then 
+        MATRIX_TYPE_UPD="CPM"
+    else
+        MATRIX_TYPE_UPD=${matrix_type}
+    fi
+
     get_experiment_data.R\
                 --accesssion-code ${dataset_id}\
                 --config-file ${params.data_import.config_file}\
-                --matrix-type ${matrix_type}\
+                --matrix-type \$MATRIX_TYPE_UPD\
                 --output-dir-name data\
                 --get-sdrf ${params.data_import.get_sdrf}\
                 --get-condensed-sdrf ${params.data_import.get_cond_sdrf}\
