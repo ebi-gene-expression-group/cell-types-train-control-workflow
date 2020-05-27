@@ -5,7 +5,7 @@ Schematic representation of the process is shown below:
 This workflow scans a comma-separated config file for specified SCXA dataest accession numbers, imports them and trains a range of classifiers for each dataset. The following columns are expected in the config file: 
 * `dataset id`
 * `technology type` _("droplet" or "smart-seq")_
-* `matrix type` _(raw, filtered, normalised, CPM- or TPM-normalised)_
+* `matrix type` _(raw, filtered, CPM- or TPM-normalised)_
 * `number of clusters in marker gene file` 
 * `barcode column` (in SDRF file) 
 * `cell type column` 
