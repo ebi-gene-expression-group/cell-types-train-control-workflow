@@ -19,19 +19,19 @@ This workflow scans a user-provided comma-separated text file for specified SCXA
 
 Example config file can be found [here](example_config.txt).
 
-### Setting up config
+### Setting up config
 The control workflow's and individual methods' parameters can be set from `nextflow.config`. You can speficy the path to the training datasets file there (`data/datasets.txt` is used by default). See the comments in the config file for further information. 
 
 ### Running the workflow 
 Prior to running the workflow, you will need to fetch and update the submodules for individual tool workflows. Run the following command from the workflow directory: `./bin/fetch_tool_training_workflows.sh`. 
 
-You will need to have Bioconda installed to run the workflow. It is recommended to use a clean environment to run the processes. Issue the following commands: 
+You will need to have [conda](https://docs.conda.io/en/latest/) installed to run the workflow. It is recommended to use a clean environment to avoid dependency conflicts. Issue the following commands: 
 ```
 conda create -n nextflow && conda activate nextflow 
 conda install nextflow 
-./bin/run_control_workflow.sh 
+./bin/run_control_workflow.sh <profile>
 ```
-In the `run_control_workflow.sh` script, the `<profile>` parameter might be either `local` or `cluster` depending on where you run the process. 
+In the `run_control_workflow.sh` script, the `<profile>` parameter might be either `standard` or `cluster` depending on where you run the process. More information provided [here](https://www.nextflow.io/docs/latest/executor.html#) 
 
 ### Outputs 
 Workflow outputs can be found in `data/<DATASET_ID>` directory.
