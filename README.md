@@ -23,7 +23,10 @@ Example config file can be found [here](example_config.txt).
 The control workflow's and individual methods' parameters can be set from `nextflow.config`. You can speficy the path to the training datasets file there (`data/datasets.txt` is used by default). See the comments in the config file for further information. 
 
 ### Running the workflow 
-Prior to running the workflow, you will need to fetch and update the submodules for individual tool workflows. Run the following command from the workflow directory: `./bin/fetch_tool_training_workflows.sh`. 
+Prior to running the workflow, you will need to fetch and update the submodules for individual tool workflows. Run the following command from the workflow directory: 
+```
+./bin/fetch_tool_training_workflows.sh 
+```
 
 You will need to have [conda](https://docs.conda.io/en/latest/) installed to run the workflow. It is recommended to use a clean environment to avoid dependency conflicts. Issue the following commands: 
 ```
