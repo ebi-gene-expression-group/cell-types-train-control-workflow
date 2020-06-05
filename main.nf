@@ -34,7 +34,7 @@ process fetch_training_datasets {
         tuple val(dataset_id), val(seq_method), val(num_clust), val(barcode_col), val(cell_type_col), val(matrix_type) from IMPORT_PARAMS
 
     output:
-        tuple file("data"), val(dataset_id), val(barcode_col), val(cell_type_col), val(matrix_type) into TRAINING_DATA
+        tuple file(dataset_id), val(dataset_id), val(barcode_col), val(cell_type_col), val(matrix_type) into TRAINING_DATA
         val(num_clust) into N_CLUST
 
     """
