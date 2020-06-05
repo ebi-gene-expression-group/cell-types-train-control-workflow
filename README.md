@@ -31,7 +31,7 @@ conda create -n nextflow && conda activate nextflow
 conda install nextflow 
 ./bin/run_control_workflow.sh <profile>
 ```
-In the `run_control_workflow.sh` script, the `<profile>` parameter might be either `standard` or `cluster` depending on where you run the process. More information provided [here](https://www.nextflow.io/docs/latest/executor.html#) 
+In the `run_control_workflow.sh` script, the `<profile>` parameter might be either `standard` or `cluster` depending on where you run the process. More information provided [here](https://www.nextflow.io/docs/latest/executor.html#).
 
 ### Outputs 
 Workflow outputs can be found in `data/<DATASET_ID>` directory.
