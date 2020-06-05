@@ -46,7 +46,7 @@ process fetch_training_datasets {
 
     get_experiment_data.R\
                 --accesssion-code ${dataset_id}\
-                --config-file ${params.data_import.config_file}\
+                --config-file ${params.data_import.scxa_import_config_file}\
                 --matrix-type \$MATRIX_TYPE_UPD\
                 --output-dir-name ${dataset_id}\
                 --get-sdrf ${params.data_import.get_sdrf}\
