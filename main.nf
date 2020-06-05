@@ -23,7 +23,7 @@ UNIQUE_MATRIX_TYPES = Channel
 
 // parse txt file with dataset accessions into a queue channel; build combinations with matrix types 
 IMPORT_PARAMS = Channel
-                .fromPath(params.data_import.training_dataset_ids)
+                .fromPath(params.data_import.training_datasets)
                 .splitCsv(header:false, sep:",")
                 .combine(UNIQUE_MATRIX_TYPES)
 
@@ -48,7 +48,7 @@ process fetch_training_datasets {
                 --accesssion-code ${dataset_id}\
                 --config-file ${params.data_import.config_file}\
                 --matrix-type \$MATRIX_TYPE_UPD\
-                --output-dir-name data\
+                --output-dir-name ${dataset_id}\
                 --get-sdrf ${params.data_import.get_sdrf}\
                 --get-condensed-sdrf ${params.data_import.get_cond_sdrf}\
                 --get-idf ${params.data_import.get_idf}\
@@ -66,7 +66,7 @@ if(params.unmelt_sdrf.run == "True"){
             tuple file(data), val(dataset_id), val(barcode_col), val(cell_type_col), val(matrix_type) from TRAINING_DATA
 
         output:
-            tuple file("data"), val(dataset_id), val(barcode_col), val(cell_type_col), val(matrix_type) into TRAINING_DATA_UNMELT
+            tuple file(data), val(dataset_id), val(barcode_col), val(cell_type_col), val(matrix_type) into TRAINING_DATA_UNMELT
 
         """
         unmelt_condensed.R\

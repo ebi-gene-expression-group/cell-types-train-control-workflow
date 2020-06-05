@@ -1,3 +1,0 @@
-E-MTAB-6386,droplet,3,id,Characteristic.cell.type.
-E-GEOD-106973,smart-seq,13,id,Characteristic.cell.type.
-
