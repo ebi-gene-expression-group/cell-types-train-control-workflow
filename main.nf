@@ -114,7 +114,7 @@ if(params.garnett.run == "True"){
             tuple val(num_clust), file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col), val(matrix_type) from GARNETT_FILTERED_DATA
             
         output:
-            file("garnett_classifier_${dataset_id}.rds") into GARNETT_CLASSIFIER
+            file("${dataset_id}_garnett.rds") into GARNETT_CLASSIFIER
 
         """
         RESULTS_DIR=\$PWD
@@ -133,7 +133,7 @@ if(params.garnett.run == "True"){
                             --classifier_gene_type ${params.garnett.classifier_gene_type}\
                             --n_outgroups ${params.garnett.n_outgroups}
 
-        mv garnett_classifier.rds garnett_classifier_${dataset_id}.rds
+        mv garnett_classifier.rds ${dataset_id}_garnett.rds
         """
     }
 } else {
@@ -157,7 +157,7 @@ if(params.scpred.run == "True"){
             tuple file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col), val(matrix_type) from SCPRED_FILTERED_DATA
 
         output:
-            file("scpred_classifier_${dataset_id}.rds") into SCPRED_CLASSIFIER
+            file("${dataset_id}_scpred.rds") into SCPRED_CLASSIFIER
 
         """
         RESULTS_DIR=\$PWD
@@ -179,7 +179,7 @@ if(params.scpred.run == "True"){
                             --log_transform ${params.scpred.log_transform}\
                             --model ${params.scpred.model}
 
-        mv scpred_classifier.rds scpred_classifier_${dataset_id}.rds
+        mv scpred_classifier.rds ${dataset_id}_scpred.rds
         """
     }
 } else {
@@ -203,7 +203,7 @@ if(params.scmap_cluster.run == "True"){
             tuple file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col), val(matrix_type) from SCMAP_CLUSTER_FILTERED_DATA
 
         output:
-            file("scmap_index_cluster_${dataset_id}.rds")
+            file("${dataset_id}_scmap-cluster.rds")
 
         """
         RESULTS_DIR=\$PWD
@@ -220,7 +220,7 @@ if(params.scmap_cluster.run == "True"){
                             --cluster_col ${cell_label_col}\
                             --threshold ${params.scmap_cluster.threshold}
 
-        mv scmap_index_cluster.rds scmap_index_cluster_${dataset_id}.rds
+        mv scmap_index_cluster.rds ${dataset_id}_scmap-cluster.rds
         """
     }
 } else {
@@ -244,7 +244,7 @@ if(params.scmap_cell.run == "True"){
 
 
         output:
-            file("scmap_index_cell_${dataset_id}.rds") into SCMAP_CELL_INDEX
+            file("${dataset_id}_scmap-cell.rds") into SCMAP_CELL_INDEX
 
         """
         RESULTS_DIR=\$PWD
@@ -261,7 +261,7 @@ if(params.scmap_cell.run == "True"){
                             --cluster_col ${cell_label_col}\
                             --threshold ${params.scmap_cell.threshold}
 
-        mv scmap_index_cell.rds scmap_index_cell_${dataset_id}.rds
+        mv scmap_index_cell.rds ${dataset_id}_scmap-cell.rds
         """
     }
 } else {
