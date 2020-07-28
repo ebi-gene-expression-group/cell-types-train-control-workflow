@@ -120,7 +120,7 @@ if(params.garnett.run == "True"){
         RESULTS_DIR=\$PWD
 
         nextflow run $TRAIN_WORKFLOWS/garnett-train-workflow/main.nf\
-                            -profile ${params.profile}\
+			    -profile ${params.profile}\
                             --results_dir \$RESULTS_DIR\
                             --training_10x_dir ${training_data}/10x_data\
                             --training_dataset_id ${dataset_id}\
@@ -164,7 +164,7 @@ if(params.scpred.run == "True"){
 
         nextflow run $TRAIN_WORKFLOWS/scpred-train-workflow/main.nf\
                             -profile ${params.profile}\
-                            --results_dir \$RESULTS_DIR\
+			    --results_dir \$RESULTS_DIR\
                             --method ${params.scpred.method}\
                             --training_10x_dir ${training_data}/10x_data\
                             --metadata_file ${training_data}/unmelted_sdrf.tsv\
@@ -209,7 +209,7 @@ if(params.scmap_cluster.run == "True"){
         RESULTS_DIR=\$PWD
 
         nextflow run $TRAIN_WORKFLOWS/scmap-train-workflow/main.nf\
-                            -profile ${params.profile}\
+			    -profile ${params.profile}\
                             --results_dir \$RESULTS_DIR\
                             --training_10x_dir ${training_data}/10x_data\
                             --training_metadata ${training_data}/unmelted_sdrf.tsv\
@@ -251,7 +251,7 @@ if(params.scmap_cell.run == "True"){
 
         nextflow run $TRAIN_WORKFLOWS/scmap-train-workflow/main.nf\
                             -profile ${params.profile}\
-                            --results_dir \$RESULTS_DIR\
+			    --results_dir \$RESULTS_DIR\
                             --training_10x_dir ${training_data}/10x_data\
                             --training_metadata ${training_data}/unmelted_sdrf.tsv\
                             --projection_method cell\
