@@ -153,7 +153,7 @@ if(params.scpred.run == "True"){
         publishDir "${baseDir}/data/${dataset_id}", mode: 'copy'
         conda "${baseDir}/envs/nextflow.yaml"
 
-        errorStrategy { task.attempt<=10  ? 'retry' : 'finish' }
+        errorStrategy { task.attempt<=3  ? 'retry' : 'ignore' }
         memory { 16.GB * task.attempt }
 
         maxForks 5
@@ -200,7 +200,7 @@ if(params.scmap_cluster.run == "True"){
         publishDir "${baseDir}/data/${dataset_id}", mode: 'copy'
         conda "${baseDir}/envs/nextflow.yaml"
 
-        errorStrategy { task.attempt<=10  ? 'retry' : 'finish' }
+        errorStrategy { task.attempt<=10  ? 'retry' : 'ignore' }
         memory { 16.GB * task.attempt }
 
         maxForks 5
@@ -241,7 +241,7 @@ if(params.scmap_cell.run == "True"){
         publishDir "${baseDir}/data/${dataset_id}", mode: 'copy'
         conda "${baseDir}/envs/nextflow.yaml"
 
-        errorStrategy { task.attempt<=10  ? 'retry' : 'finish' }
+        errorStrategy { task.attempt<=10  ? 'retry' : 'ignore' }
         memory { 16.GB * task.attempt }
 
         maxForks 5
