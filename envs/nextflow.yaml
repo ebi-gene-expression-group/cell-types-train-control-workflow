@@ -1,7 +1,3 @@
 name: nextflow
-channels:
-  - bioconda
-  - conda-forge
-  - defaults
 dependencies:
   - nextflow=20.01.0
