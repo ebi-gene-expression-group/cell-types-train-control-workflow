@@ -109,11 +109,10 @@ if(params.garnett.run == "True"){
         publishDir "${baseDir}/data/${dataset_id}", mode: 'copy'
         conda "${baseDir}/envs/nextflow.yaml"
 
-        errorStrategy { task.exitStatus == 130 || task.exitStatus == 137  ? 'retry' : 'finish' }   
-        maxRetries 5
+        errorStrategy { task.attempt<=10  ? 'retry' : 'finish' }   
         memory { 16.GB * task.attempt }
         
-        maxForks 3
+        maxForks 5
 
         input:
             tuple val(num_clust), file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col), val(matrix_type) from GARNETT_FILTERED_DATA
@@ -154,11 +153,10 @@ if(params.scpred.run == "True"){
         publishDir "${baseDir}/data/${dataset_id}", mode: 'copy'
         conda "${baseDir}/envs/nextflow.yaml"
 
-        errorStrategy { task.exitStatus == 130 || task.exitStatus == 137  ? 'retry' : 'ignore' }   
-        maxRetries 5
+        errorStrategy { task.attempt<=10  ? 'retry' : 'finish' }
         memory { 16.GB * task.attempt }
 
-        maxForks 3
+        maxForks 5
         
         input:
             tuple file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col), val(matrix_type) from SCPRED_FILTERED_DATA
@@ -202,11 +200,10 @@ if(params.scmap_cluster.run == "True"){
         publishDir "${baseDir}/data/${dataset_id}", mode: 'copy'
         conda "${baseDir}/envs/nextflow.yaml"
 
-        errorStrategy { task.exitStatus == 130 || task.exitStatus == 137  ? 'retry' : 'ignore' }   
-        maxRetries 5
+        errorStrategy { task.attempt<=10  ? 'retry' : 'finish' }
         memory { 16.GB * task.attempt }
 
-        maxForks 3
+        maxForks 5
         
         input:
             tuple file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col), val(matrix_type) from SCMAP_CLUSTER_FILTERED_DATA
@@ -244,11 +241,10 @@ if(params.scmap_cell.run == "True"){
         publishDir "${baseDir}/data/${dataset_id}", mode: 'copy'
         conda "${baseDir}/envs/nextflow.yaml"
 
-        errorStrategy { task.exitStatus == 130 || task.exitStatus == 137  ? 'retry' : 'ignore' }   
-        maxRetries 5
+        errorStrategy { task.attempt<=10  ? 'retry' : 'finish' }
         memory { 16.GB * task.attempt }
 
-        maxForks 3
+        maxForks 5
         
         input:
             tuple file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col), val(matrix_type) from SCMAP_CELL_FILTERED_DATA

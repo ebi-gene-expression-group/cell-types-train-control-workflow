@@ -1,6 +1,3 @@
-E-GEOD-121619,droplet,15,id,inferred.cell.type
-E-GEOD-123013,droplet,12,id,inferred.cell.type
-E-CURD-4,droplet,13,id,inferred.cell.type
 E-MTAB-5061,smart-seq,13,id,inferred.cell.type
 E-GEOD-81547,smart-seq,10,id,inferred.cell.type
 E-GEOD-81608,smart-seq,18,id,inferred.cell.type
@@ -9,11 +6,9 @@ E-ENAD-27,smart-seq,11,id,inferred.cell.type
 E-MTAB-6678,smart-seq,10,id,inferred.cell.type
 E-MTAB-6701,droplet,18,id,inferred.cell.type
 E-MTAB-7249,smart-seq,2,id,inferred.cell.type
-E-HCAD-4,droplet,13,id,inferred.cell.type
 E-HCAD-6,droplet,12,id,inferred.cell.type
 E-HCAD-8,droplet,10,id,inferred.cell.type
 E-GEOD-114530,droplet,10,id,inferred.cell.type
-E-GEOD-124472,droplet,14,id,inferred.cell.type
 E-HCAD-10,droplet,19,id,inferred.cell.type
 E-GEOD-125970,droplet,12,id,inferred.cell.type
 E-HCAD-11,droplet,10,id,inferred.cell.type
