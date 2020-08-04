@@ -63,6 +63,7 @@ if(params.unmelt_sdrf.run == "True"){
         conda "${baseDir}/envs/exp_metadata.yaml"
 
         memory { 10.GB * task.attempt }
+        maxRetries 5
         errorStrategy { task.attempt<=5 ? 'retry' : 'ignore' }
 
         input:
@@ -83,7 +84,6 @@ if(params.unmelt_sdrf.run == "True"){
 } else {
     TRAINING_DATA.set{ TRAINING_DATA_PROCESSED }
 }
-
 
 // fork queue channel contents into channels for corresponding tools
 TRAINING_DATA_PROCESSED.into{
@@ -110,9 +110,10 @@ if(params.garnett.run == "True"){
         conda "${baseDir}/envs/nextflow.yaml"
 
         errorStrategy { task.attempt<=10  ? 'retry' : 'ignore' }   
+        maxRetries 5
         memory { 16.GB * task.attempt }
         
-        maxForks 5
+        maxForks 3
 
         input:
             tuple val(num_clust), file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col), val(matrix_type) from GARNETT_FILTERED_DATA
@@ -154,6 +155,7 @@ if(params.scpred.run == "True"){
         conda "${baseDir}/envs/nextflow.yaml"
 
         errorStrategy { task.attempt<=5  ? 'retry' : 'ignore' }
+        maxRetries 5
         memory { 16.GB * task.attempt }
 
         maxForks 3
@@ -169,7 +171,8 @@ if(params.scpred.run == "True"){
 
         nextflow run $TRAIN_WORKFLOWS/scpred-train-workflow/main.nf\
                             -profile ${params.profile}\
-			    --results_dir \$RESULTS_DIR\
+			                --results_dir \$RESULTS_DIR\
+                            --exclusions ${params.exclusions}\
                             --method ${params.scpred.method}\
                             --training_10x_dir ${training_data}/10x_data\
                             --metadata_file ${training_data}/unmelted_sdrf.tsv\
@@ -201,6 +204,7 @@ if(params.scmap_cluster.run == "True"){
         conda "${baseDir}/envs/nextflow.yaml"
 
         errorStrategy { task.attempt<=10  ? 'retry' : 'ignore' }
+        maxRetries 5
         memory { 16.GB * task.attempt }
 
         maxForks 3
@@ -222,6 +226,7 @@ if(params.scmap_cluster.run == "True"){
                             --projection_method cluster\
                             --training_dataset_id ${dataset_id}\
                             --col_names ${params.scmap_cluster.col_names}\
+                            --exclusions ${params.exclusions}\
                             --cell_id_col ${barcode_col}\
                             --cluster_col ${cell_label_col}\
                             --threshold ${params.scmap_cluster.threshold}
@@ -242,6 +247,7 @@ if(params.scmap_cell.run == "True"){
         conda "${baseDir}/envs/nextflow.yaml"
 
         errorStrategy { task.attempt<=10  ? 'retry' : 'ignore' }
+        maxRetries 5
         memory { 16.GB * task.attempt }
 
         maxForks 3
@@ -266,6 +272,7 @@ if(params.scmap_cell.run == "True"){
                             --col_names ${params.scmap_cell.col_names}\
                             --cell_id_col ${barcode_col}\
                             --cluster_col ${cell_label_col}\
+                            --exclusions ${params.exclusions}\
                             --threshold ${params.scmap_cell.threshold}
 
         mv scmap_index_cell.rds ${dataset_id}_scmap-cell.rds
