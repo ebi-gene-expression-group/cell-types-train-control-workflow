@@ -109,11 +109,11 @@ if(params.garnett.run == "True"){
         publishDir "${baseDir}/data/${dataset_id}", mode: 'copy'
         conda "${baseDir}/envs/nextflow.yaml"
 
-        errorStrategy { task.attempt<=10  ? 'retry' : 'ignore' }   
-        maxRetries 5
+        errorStrategy { task.attempt<=3  ? 'retry' : 'ignore' }   
+        maxRetries 3
         memory { 16.GB * task.attempt }
         
-        maxForks 3
+        maxForks 5
 
         input:
             tuple val(num_clust), file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col), val(matrix_type) from GARNETT_FILTERED_DATA
@@ -154,11 +154,11 @@ if(params.scpred.run == "True"){
         publishDir "${baseDir}/data/${dataset_id}", mode: 'copy'
         conda "${baseDir}/envs/nextflow.yaml"
 
-        errorStrategy { task.attempt<=5  ? 'retry' : 'ignore' }
-        maxRetries 5
+        errorStrategy { task.attempt<=3  ? 'retry' : 'ignore' }
+        maxRetries 3
         memory { 16.GB * task.attempt }
 
-        maxForks 3
+        maxForks 5
         
         input:
             tuple file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col), val(matrix_type) from SCPRED_FILTERED_DATA
@@ -203,11 +203,11 @@ if(params.scmap_cluster.run == "True"){
         publishDir "${baseDir}/data/${dataset_id}", mode: 'copy'
         conda "${baseDir}/envs/nextflow.yaml"
 
-        errorStrategy { task.attempt<=10  ? 'retry' : 'ignore' }
-        maxRetries 5
+        errorStrategy { task.attempt<=3  ? 'retry' : 'ignore' }
+        maxRetries 3
         memory { 16.GB * task.attempt }
 
-        maxForks 3
+        maxForks 5
         
         input:
             tuple file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col), val(matrix_type) from SCMAP_CLUSTER_FILTERED_DATA
@@ -219,7 +219,7 @@ if(params.scmap_cluster.run == "True"){
         RESULTS_DIR=\$PWD
 
         nextflow run $TRAIN_WORKFLOWS/scmap-train-workflow/main.nf\
-			    -profile ${params.profile}\
+			                -profile ${params.profile}\
                             --results_dir \$RESULTS_DIR\
                             --training_10x_dir ${training_data}/10x_data\
                             --training_metadata ${training_data}/unmelted_sdrf.tsv\
@@ -246,11 +246,11 @@ if(params.scmap_cell.run == "True"){
         publishDir "${baseDir}/data/${dataset_id}", mode: 'copy'
         conda "${baseDir}/envs/nextflow.yaml"
 
-        errorStrategy { task.attempt<=10  ? 'retry' : 'ignore' }
-        maxRetries 5
+        errorStrategy { task.attempt<=3  ? 'retry' : 'ignore' }
+        maxRetries 3
         memory { 16.GB * task.attempt }
 
-        maxForks 3
+        maxForks 5
         
         input:
             tuple file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col), val(matrix_type) from SCMAP_CELL_FILTERED_DATA
@@ -264,7 +264,7 @@ if(params.scmap_cell.run == "True"){
 
         nextflow run $TRAIN_WORKFLOWS/scmap-train-workflow/main.nf\
                             -profile ${params.profile}\
-			    --results_dir \$RESULTS_DIR\
+			                --results_dir \$RESULTS_DIR\
                             --training_10x_dir ${training_data}/10x_data\
                             --training_metadata ${training_data}/unmelted_sdrf.tsv\
                             --projection_method cell\
