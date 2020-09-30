@@ -76,7 +76,7 @@ if(params.unmelt_sdrf.run == "True"){
         unmelt_condensed.R\
                 -i ${data}/condensed-sdrf.tsv\
                 -o ${data}/unmelted_sdrf.tsv\
-                --has-ontology\
+                --has-ontology ${params.unmelt_sdrf.has_ontology}\
                 --retain-types ${params.unmelt_sdrf.retain_types}        
         """
     } 
