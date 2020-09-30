@@ -113,7 +113,7 @@ if(params.garnett.run == "True"){
         maxRetries 5
         memory { 16.GB * task.attempt }
         
-        maxForks 3
+        maxForks 4
 
         input:
             tuple val(num_clust), file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col), val(matrix_type) from GARNETT_FILTERED_DATA
@@ -154,11 +154,8 @@ if(params.scpred.run == "True"){
         publishDir "${baseDir}/data/${dataset_id}", mode: 'copy'
         conda "${baseDir}/envs/nextflow.yaml"
 
-        errorStrategy { task.attempt<=5  ? 'retry' : 'ignore' }
-        maxRetries 5
-        memory { 16.GB * task.attempt }
-
-        maxForks 3
+        errorStrategy 'ignore'
+       // memory { 16.GB * task.attempt }
         
         input:
             tuple file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col), val(matrix_type) from SCPRED_FILTERED_DATA
@@ -207,7 +204,7 @@ if(params.scmap_cluster.run == "True"){
         maxRetries 5
         memory { 16.GB * task.attempt }
 
-        maxForks 3
+        maxForks 4
         
         input:
             tuple file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col), val(matrix_type) from SCMAP_CLUSTER_FILTERED_DATA
@@ -250,7 +247,7 @@ if(params.scmap_cell.run == "True"){
         maxRetries 5
         memory { 16.GB * task.attempt }
 
-        maxForks 3
+        maxForks 4
         
         input:
             tuple file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col), val(matrix_type) from SCMAP_CELL_FILTERED_DATA
