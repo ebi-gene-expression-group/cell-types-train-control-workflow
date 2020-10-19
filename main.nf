@@ -1,11 +1,5 @@
 #!/usr/bin/env nextflow 
 
-// initialise required channels 
-DATASET_IDS = Channel.create()
-NUM_CLUST = Channel.create()
-BARCODE_COLUMN = Channel.create()
-CELL_LABEL_COLUMN = Channel.create()
-
 // extract matrix types required by the tools, conditioned on them being 'on' 
 tool_switch = ["True":0, "False":1]
 garnett_matrix_type = [params.garnett.matrix_type, null][tool_switch[params.garnett.run]]
@@ -31,10 +25,10 @@ process fetch_training_datasets {
     conda "${baseDir}/envs/load_data.yaml"
 
     input:
-        tuple val(dataset_id), val(seq_method), val(num_clust), val(barcode_col), val(cell_type_col), val(matrix_type) from IMPORT_PARAMS
+        tuple val(dataset_id), val(seq_method), val(num_clust), val(barcode_col), val(cell_label_col), val(matrix_type) from IMPORT_PARAMS
 
     output:
-        tuple file(dataset_id), val(dataset_id), val(barcode_col), val(cell_type_col), val(matrix_type) into TRAINING_DATA
+        tuple file(dataset_id), val(dataset_id), val(barcode_col), val(cell_label_col), val(matrix_type) into TRAINING_DATA
         val(num_clust) into N_CLUST
 
     """
@@ -57,6 +51,37 @@ process fetch_training_datasets {
     """
 }
 
+// filter out unwanted characters from SDRF and marker gene files
+process filter_labels{
+    conda "${baseDir}/envs/label_analysis.yaml"
+
+    input: 
+        tuple file(data), val(dataset_id), val(barcode_col), val(cell_label_col), val(matrix_type) from TRAINING_DATA
+        val(num_clust) from N_CLUST
+
+    output:
+        tuple file(data), val(dataset_id), val(barcode_col), val(cell_label_col), val(matrix_type) into TRAINING_DATA_FILT
+        val(num_clust) from N_CLUST_FILT
+
+    """
+    # SDRF file
+    check_labels.R\
+          --input-file ${data}/condensed-sdrf.tsv\
+          --label-field ${params.data_import.cond_sdrf_label_name}\
+          --condensed\
+          --output-path ${data}/condensed_sdrf_filt.tsv
+
+
+    # Marker genes file
+        check_labels.R\
+          --input-file ${data}/marker_genes_${num_clust}.tsv\
+          --label-field ${params.garnett.groups_col}\
+          --output-path ${data}/marker_genes_${num_clust}_filt.tsv
+    """
+
+}
+
+
 // to avoid problems with sdrf-barcode matching, unmelt condensed SDRF and use it in downstream processes
 if(params.unmelt_sdrf.run == "True"){
     process unmelt_condensed_sdrf {
@@ -67,14 +92,14 @@ if(params.unmelt_sdrf.run == "True"){
         errorStrategy { task.attempt<=5 ? 'retry' : 'ignore' }
 
         input:
-            tuple file(data), val(dataset_id), val(barcode_col), val(cell_type_col), val(matrix_type) from TRAINING_DATA
+            tuple file(data), val(dataset_id), val(barcode_col), val(cell_label_col), val(matrix_type) from TRAINING_DATA_FILT
 
         output:
-            tuple file(data), val(dataset_id), val(barcode_col), val(cell_type_col), val(matrix_type) into TRAINING_DATA_UNMELT
+            tuple file(data), val(dataset_id), val(barcode_col), val(cell_label_col), val(matrix_type) into TRAINING_DATA_UNMELT
 
         """
         unmelt_condensed.R\
-                -i ${data}/condensed-sdrf.tsv\
+                -i ${data}/condensed_sdrf_filt.tsv\
                 -o ${data}/unmelted_sdrf.tsv\
                 --has-ontology ${params.unmelt_sdrf.has_ontology}\
                 --retain-types ${params.unmelt_sdrf.retain_types}        
@@ -94,7 +119,7 @@ TRAINING_DATA_PROCESSED.into{
 }
 
 // add number of clusters to Garnett data 
-GARNETT_FULL_DATA = N_CLUST.merge(GARNETT_TRAINING_DATA)
+GARNETT_FULL_DATA = N_CLUST_FILT.merge(GARNETT_TRAINING_DATA)
 
 //////////////////////////////////////////
 // train each classifier on provided data 
@@ -125,11 +150,11 @@ if(params.garnett.run == "True"){
         RESULTS_DIR=\$PWD
 
         nextflow run $TRAIN_WORKFLOWS/garnett-train-workflow/main.nf\
-			    -profile ${params.profile}\
+			                -profile ${params.profile}\
                             --results_dir \$RESULTS_DIR\
                             --training_10x_dir ${training_data}/10x_data\
                             --training_dataset_id ${dataset_id}\
-                            --marker_genes ${training_data}/marker_genes_${num_clust}.tsv\
+                            --marker_genes ${training_data}/marker_genes_${num_clust}_filt.tsv\
                             --pval_col ${params.garnett.pval_col}\
                             --groups_col ${params.garnett.groups_col}\
                             --gene_names ${params.garnett.gene_names}\
