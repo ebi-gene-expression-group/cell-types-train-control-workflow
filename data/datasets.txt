@@ -1,19 +1,19 @@
-E-MTAB-5061,smart-seq,13,id,inferred.cell.type
-E-GEOD-81547,smart-seq,10,id,inferred.cell.type
-E-GEOD-81608,smart-seq,18,id,inferred.cell.type
-E-GEOD-83139,smart-seq,10,id,inferred.cell.type
-E-ENAD-27,smart-seq,11,id,inferred.cell.type
-E-MTAB-6678,smart-seq,10,id,inferred.cell.type
-E-MTAB-6701,droplet,18,id,inferred.cell.type
-E-MTAB-7249,smart-seq,2,id,inferred.cell.type
-E-HCAD-6,droplet,12,id,inferred.cell.type
-E-HCAD-8,droplet,10,id,inferred.cell.type
-E-GEOD-114530,droplet,10,id,inferred.cell.type
-E-HCAD-10,droplet,19,id,inferred.cell.type
-E-GEOD-125970,droplet,12,id,inferred.cell.type
-E-HCAD-11,droplet,10,id,inferred.cell.type
-E-CURD-46,droplet,17,id,inferred.cell.type
-E-MTAB-6912,smart-seq,2,id,inferred.cell.type
-E-MTAB-6925,smart-seq,2,id,inferred.cell.type
-E-GEOD-71585,smart-seq,10,id,inferred.cell.type
-E-GEOD-94641,smart-seq,10,id,inferred.cell.type
+E-MTAB-5061,smart-seq,inferred_cell_type_-_ontology_labels,id,inferred cell type - ontology labels
+E-GEOD-81547,smart-seq,inferred_cell_type_-_ontology_labels,id,inferred cell type - ontology labels
+E-GEOD-81608,smart-seq,inferred_cell_type_-_ontology_labels,id,inferred cell type - ontology labels
+E-GEOD-83139,smart-seq,inferred_cell_type_-_ontology_labels,id,inferred cell type - ontology labels
+E-ENAD-27,smart-seq,inferred_cell_type_-_ontology_labels,id,inferred cell type - ontology labels
+E-MTAB-6678,smart-seq,inferred_cell_type_-_ontology_labels,id,inferred cell type - ontology labels
+E-MTAB-6701,droplet,inferred_cell_type_-_ontology_labels,id,inferred cell type - ontology labels
+E-MTAB-7249,smart-seq,inferred_cell_type_-_ontology_labels,id,inferred cell type - ontology labels
+E-HCAD-6,droplet,inferred_cell_type_-_ontology_labels,id,inferred cell type - ontology labels
+E-HCAD-8,droplet,inferred_cell_type_-_ontology_labels,id,inferred cell type - ontology labels
+E-GEOD-114530,droplet,inferred_cell_type_-_authors_labels,id,inferred cell type - authors labels
+E-HCAD-10,droplet,inferred_cell_type_-_ontology_labels,id,inferred cell type - ontology labels
+E-GEOD-125970,droplet,inferred_cell_type_-_ontology_labels,id,inferred cell type - ontology labels
+E-HCAD-11,droplet,inferred_cell_type_-_ontology_labels,id,inferred cell type - ontology labels
+E-CURD-46,droplet,inferred_cell_type_-_ontology_labels,id,inferred cell type - ontology labels
+E-MTAB-6912,smart-seq,inferred_cell_type_-_ontology_labels,id,inferred cell type - ontology labels
+E-MTAB-6925,smart-seq,inferred_cell_type_-_authors_labels,id,inferred cell type - authors labels
+E-GEOD-71585,smart-seq,inferred_cell_type_-_ontology_labels,id,inferred cell type - ontology labels
+E-GEOD-94641,smart-seq,inferred_cell_type_-_ontology_labels,id,inferred cell type - ontology labels

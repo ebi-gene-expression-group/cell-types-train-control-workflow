@@ -60,23 +60,22 @@ process filter_labels{
         val(num_clust) from N_CLUST
 
     output:
-        tuple file(data), val(dataset_id), val(barcode_col), val(cell_label_col), val(matrix_type) into TRAINING_DATA_FILT
-        val(num_clust) from N_CLUST_FILT
+        tuple file("${data}_upd"), val(dataset_id), val(barcode_col), val(cell_label_col), val(matrix_type) into TRAINING_DATA_FILT
+        val(num_clust) into N_CLUST_FILT
 
     """
     # SDRF file
     check_labels.R\
           --input-file ${data}/condensed-sdrf.tsv\
-          --label-field ${params.data_import.cond_sdrf_label_name}\
+          --label-field '${cell_label_col}'\
           --condensed\
-          --output-path ${data}/condensed_sdrf_filt.tsv
-
-
-    # Marker genes file
-        check_labels.R\
+          --output-path ${data}/condensed_sdrf_filt.tsv &&
+    check_labels.R\
           --input-file ${data}/marker_genes_${num_clust}.tsv\
-          --label-field ${params.garnett.groups_col}\
+          --label-field '${params.garnett.groups_col}'\
           --output-path ${data}/marker_genes_${num_clust}_filt.tsv
+    
+    mv ${data} "${data}_upd"
     """
 
 }
