@@ -204,7 +204,7 @@ if(params.scpred.run == "True"){
                             --train_probs_plot_path ${params.scpred.train_probs_plot_path}\
                             --normalised_counts_slot ${params.scpred.normalised_counts_slot}\
                             --cell_id_col_name ${barcode_col}\
-                            --cell_types_col_name ${cell_label_col}\
+                            --cell_types_col_name '${cell_label_col}'\
                             --col_names ${params.scpred.col_names}\
                             --trained_model ${params.scpred.trained_model}\
                             --log_transform ${params.scpred.log_transform}\
