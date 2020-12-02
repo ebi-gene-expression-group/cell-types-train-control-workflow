@@ -129,7 +129,7 @@ GARNETT_FILTERED_DATA = GARNETT_FULL_DATA.filter{ it[5] == params.garnett.matrix
 
 // run garnett training 
 if(params.garnett.run == "True"){
-    process train_garnett_classifier {
+    process run_garnett_workflow {
         publishDir "${baseDir}/data/${dataset_id}", mode: 'copy'
         conda "${baseDir}/envs/nextflow.yaml"
 
@@ -201,7 +201,6 @@ if(params.scpred.run == "True"){
                             --training_10x_dir ${training_data}/10x_data\
                             --metadata_file ${training_data}/unmelted_sdrf.tsv\
                             --training_dataset_id ${dataset_id}\
-                            --eigenvalue_plot_path ${params.scpred.eigenvalue_plot_path}\
                             --train_probs_plot_path ${params.scpred.train_probs_plot_path}\
                             --normalised_counts_slot ${params.scpred.normalised_counts_slot}\
                             --cell_id_col_name ${barcode_col}\
