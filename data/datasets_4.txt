@@ -1,0 +1,1 @@
+E-MTAB-6701,smart-seq,inferred_cell_type,id,inferred.cell.type
