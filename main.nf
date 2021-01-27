@@ -23,6 +23,10 @@ IMPORT_PARAMS = Channel
 
 process fetch_training_datasets {
     conda "${baseDir}/envs/load_data.yaml"
+    
+    memory { 8.GB * task.attempt }
+    maxRetries 3
+    errorStrategy { task.attempt<=3 ? 'retry' : 'ignore' }
 
     input:
         tuple val(dataset_id), val(seq_method), val(num_clust), val(barcode_col), val(cell_label_col), val(matrix_type) from IMPORT_PARAMS
@@ -179,10 +183,10 @@ if(params.scpred.run == "True"){
         conda "${baseDir}/envs/nextflow.yaml"
 
         errorStrategy { task.attempt<=3  ? 'retry' : 'ignore' }
-        maxRetries 3
+        maxRetries 2
         memory { 16.GB * task.attempt }
 
-        maxForks 5
+        maxForks 20
         
         input:
             tuple file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col), val(matrix_type) from SCPRED_FILTERED_DATA
