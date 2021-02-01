@@ -141,7 +141,7 @@ if(params.garnett.run == "True"){
         maxRetries 3
         memory { 16.GB * task.attempt }
      
-        maxForks 5
+        maxForks 20
 
         input:
             tuple val(num_clust), file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col), val(matrix_type) from GARNETT_FILTERED_DATA
@@ -212,7 +212,8 @@ if(params.scpred.run == "True"){
                             --col_names ${params.scpred.col_names}\
                             --trained_model ${params.scpred.trained_model}\
                             --log_transform ${params.scpred.log_transform}\
-                            --model ${params.scpred.model}
+                            --model ${params.scpred.model}\
+                            --iter_num ${params.scpred.iter_num}
 
         mv scpred_classifier.rds ${dataset_id}_scpred.rds
         """
@@ -234,7 +235,7 @@ if(params.scmap_cluster.run == "True"){
         maxRetries 3
         memory { 16.GB * task.attempt }
 
-        maxForks 5
+        maxForks 20
         
         input:
             tuple file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col), val(matrix_type) from SCMAP_CLUSTER_FILTERED_DATA
@@ -277,7 +278,7 @@ if(params.scmap_cell.run == "True"){
         maxRetries 3
         memory { 16.GB * task.attempt }
 
-        maxForks 5
+        maxForks 20
 
         input:
             tuple file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col), val(matrix_type) from SCMAP_CELL_FILTERED_DATA
