@@ -252,11 +252,11 @@ if(params.scmap_cluster.run == "True"){
                             --training_10x_dir ${training_data}/10x_data\
                             --training_metadata ${training_data}/unmelted_sdrf.tsv\
                             --projection_method cluster\
-                            --training_dataset_id ${dataset_id}\
+                            --training_dataset_id "${dataset_id}"\
                             --col_names ${params.scmap_cluster.col_names}\
                             --exclusions ${params.exclusions}\
-                            --cell_id_col ${barcode_col}\
-                            --cluster_col ${cell_label_col}\
+                            --cell_id_col "${barcode_col}"\
+                            --cluster_col "${cell_label_col}"\
                             --threshold ${params.scmap_cluster.threshold}
 
         mv scmap_index_cluster.rds ${dataset_id}_scmap-cluster.rds
@@ -298,8 +298,8 @@ if(params.scmap_cell.run == "True"){
                             --projection_method cell\
                             --training_dataset_id ${dataset_id}\
                             --col_names ${params.scmap_cell.col_names}\
-                            --cell_id_col ${barcode_col}\
-                            --cluster_col ${cell_label_col}\
+                            --cell_id_col "${barcode_col}"\
+                            --cluster_col "${cell_label_col}"\
                             --exclusions ${params.exclusions}\
                             --threshold ${params.scmap_cell.threshold}
 

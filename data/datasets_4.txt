@@ -1,1 +1,1 @@
-E-MTAB-6701,smart-seq,inferred_cell_type_-_ontology_labels,id,inferred cell type - ontology labels
+E-MTAB-6701,droplet,inferred_cell_type_-_ontology_labels,id,inferred cell type - ontology labels
