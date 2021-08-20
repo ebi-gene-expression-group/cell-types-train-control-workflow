@@ -6,6 +6,7 @@ garnett_matrix_type = [params.garnett.matrix_type, null][tool_switch[params.garn
 scmap_cluster_matrix_type = [params.scmap_cluster.matrix_type, null][tool_switch[params.scmap_cluster.run]]
 scmap_cell_matrix_type = [params.scmap_cell.matrix_type, null][tool_switch[params.scmap_cell.run]]
 scpred_matrix_type = [params.scpred.matrix_type, null][tool_switch[params.scpred.run]]
+singlecellnet_matrix_type = [params.singlecellnet.matrix_type, null][tool_switch[params.singlecellnet.run]]
 
 UNIQUE_MATRIX_TYPES = Channel
                     .of(garnett_matrix_type,
@@ -119,6 +120,7 @@ TRAINING_DATA_PROCESSED.into{
     SCMAP_CELL_TRAINING_DATA
     SCMAP_CLUSTER_TRAINING_DATA
     SCPRED_TRAINING_DATA
+    SINGLECELLNET_TRAINING_DATA
 }
 
 // add number of clusters to Garnett data 
@@ -309,3 +311,50 @@ if(params.scmap_cell.run == "True"){
 } else {
     SCMAP_CELL_CLASSIFIER = Channel.empty()
 }
+
+// keep only relevant version of the dataset 
+SINGLECELLNET_FILTERED_DATA = SINGLECELLNET_TRAINING_DATA.filter{ it[4] == params.singlecellnet.matrix_type }
+// run singlecellnet training 
+if(params.singlecellnet.run == "True"){
+    process run_singlecellnet_workflow{
+        publishDir "${baseDir}/data/${dataset_id}", mode: 'copy'
+        conda "${baseDir}/envs/nextflow.yaml"
+
+        errorStrategy { task.attempt<=3  ? 'retry' : 'ignore' }
+        maxRetries 3
+        memory { 16.GB * task.attempt }
+
+        maxForks 20
+
+        input:
+            tuple file(training_data), val(dataset_id), val(barcode_col), val(cell_label_col), val(matrix_type) from SCMAP_CELL_FILTERED_DATA
+
+        output:
+             file("${dataset_id}_singlecellnet.rds") into SINGLECELLNET_CLASSIFIER
+
+        """
+        RESULTS_DIR=\$PWD
+
+        nextflow run $TRAIN_WORKFLOWS/singlecellnet-train-workflow/main.nf\
+                             -profile ${params.profile}\
+                             --results_dir \$RESULTS_DIR\
+                             --exclusions ${params.exclusions}\
+                             --training_10x_dir ${training_data}/10x_data\
+                             --training_metadata ${training_data}/unmelted_sdrf.tsv\
+                             --training_dataset_id ${dataset_id}\
+                             --cell_id_col ${barcode_col}\
+                             --cell_types_col ${cell_label_col}
+        
+        mv trained_classifer.rds ${dataset_id}_singlecellnet.rds
+        """
+
+    }
+} else{
+    SINGLECELLNET_CLASSIFIER = Channel.empty()
+    }
+
+
+
+
+
+
